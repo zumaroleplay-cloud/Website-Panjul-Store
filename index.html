@@ -166,7 +166,7 @@
         }
         
         .img-wrapper { width: 100%; height: 170px; overflow: hidden; position: relative; }
-        .project-img { width: 100%; height: 100%; object-fit: cover; background: #161b22; transition: transform 0.5s ease; }
+        .project-img { width: 100%; height: 100%; object-fit: cover; background: #161b22; transition: transform 0.5s ease; cursor: pointer; }
         .project-card:hover .project-img { transform: scale(1.1); }
 
         .project-info { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; text-align: left; }
@@ -215,6 +215,50 @@
         }
 
         .header-dash { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 25px; }
+
+        /* --- MODAL IMAGE VIEWER --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            padding-top: 50px; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0, 0, 0, 0.85); 
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            margin: auto; 
+            display: block; 
+            max-width: 90%; 
+            max-height: 85vh; 
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+            animation: zoomIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        @keyframes zoomIn {
+            from {transform: scale(0.8); opacity: 0;}
+            to {transform: scale(1); opacity: 1;}
+        }
+        .close-modal {
+            position: absolute; 
+            top: 25px; 
+            right: 40px; 
+            color: #fff; 
+            font-size: 40px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .close-modal:hover,
+        .close-modal:focus {
+            color: var(--blue-glow); 
+            text-shadow: 0 0 20px var(--blue-glow);
+        }
     </style>
 </head>
 <body>
@@ -332,6 +376,12 @@
         </div>
     </div>
 
+    <!-- Modal Background untuk View Gambar -->
+    <div id="imageModal" class="modal" onclick="closeImageModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="imgViewer">
+    </div>
+
     <script>
         // --- ANIMASI CANVAS BINTANG BERGERAK ---
         const canvas = document.getElementById('starfield');
@@ -374,19 +424,19 @@
         }
         animateStars();
 
-        // --- DATA WEBSITE PORTOFOLIO MUKHTI ---
+        // --- DATA WEBSITE PORTOFOLIO MUKHTI (UPDATE TERBARU) ---
         const listWebsite = [
             {
-                judul: "Elysium Roleplay UCP",
+                judul: "Website Panjul Jb",
                 deskripsi: "Sebuah platform pendaftaran terintegrasi UCP (User Control Panel) untuk server Roleplay GTA San Andreas Multiplayer.",
                 link: "https://github.com", 
-                gambar: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600"
+                gambar: "https://i.ibb.co.com/gbxxxJrJ/Screenshot-20260603-122632.jpg"
             },
             {
-                judul: "Panjul Store Jb",
+                judul: "Website Panjul Store Pawno",
                 deskripsi: "Website Jual Beli Akun Game Dengan Sistem Rekber/Mc Dari Website Nya Langsung Dijamin Aman.",
                 link: "https://website-panjul-store-pawno.vercel.app", 
-                gambar: "https://i.ibb.co.com/wksNn71/Screenshot-20260603-194649.jpg"
+                gambar: "https://i.ibb.co.com/SwyBTbgF/Screenshot-20260603-195128.jpg"
             }
         ];
 
@@ -403,7 +453,19 @@
             }
         }
 
-          // --- TOGGLE MATA SHOW/HIDE PASSWORD ---
+        // --- FUNGSI LIGHTBOX (MODAL GAMBAR) ---
+        function openImageModal(imgSrc) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("imgViewer");
+            modal.style.display = "block";
+            modalImg.src = imgSrc;
+        }
+
+        function closeImageModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+
+        // --- TOGGLE MATA SHOW/HIDE PASSWORD ---
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const iconContainer = document.getElementById(iconId);
@@ -424,8 +486,8 @@
                 const card = document.createElement('div');
                 card.className = 'project-card';
                 card.innerHTML = `
-                    <div class="img-wrapper">
-                        <img class="project-img" src="${item.gambar}" alt="${item.judul}">
+                    <div class="img-wrapper" onclick="openImageModal('${item.gambar}')">
+                        <img class="project-img" src="${item.gambar}" alt="${item.judul}" title="Klik untuk memperbesar">
                     </div>
                     <div class="project-info">
                         <a href="${item.link}" target="_blank" class="project-title">${item.judul}</a>
