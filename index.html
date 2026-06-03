@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panjul Store & Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- TEMA GLOBAL & ANIMASI ANGKASA ANIME --- */
+        :root {
+            --blue-primary: #2f81f7;
+            --blue-glow: #00f0ff;
+            --purple-glow: #bd00ff;
+            --text-main: #ffffff;
+            --text-muted: #a3aab2;
+            --glass-bg: rgba(10, 15, 30, 0.75);
+            --glass-border: rgba(47, 129, 247, 0.3);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+            background: #020208;
+        }
+
+        /* Background Canvas untuk Efek Bintang Hidup */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #050515 0%, #020208 100%);
+        }
+
+        /* --- EFEK GLASSMORPHISM DENGAN AURORA GLOW --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 
+                        0 0 40px rgba(47, 129, 247, 0.15),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            animation: cardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        h1, h2, h3 { margin-top: 0; color: white; font-weight: 600; letter-spacing: 0.5px; }
+        .text-blue { color: var(--blue-glow); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
+
+        /* --- FORM INPUT & INTERAKSI MATANYA --- */
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        
+        .password-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+
+        .input-group input {
+            width: 100%; padding: 14px 16px; border-radius: 14px;
+            border: 1px solid var(--glass-border); background: rgba(0, 0, 0, 0.5);
+            color: white; outline: none; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease; font-size: 14px;
+        }
+        .input-group input:focus { 
+            border-color: var(--blue-glow); 
+            background: rgba(0, 0, 0, 0.7); 
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); 
+        }
+
+        .password-wrapper input { padding-right: 50px; }
+        
+        .eye-icon {
+            position: absolute; right: 18px; cursor: pointer;
+            color: var(--text-muted); font-size: 16px; display: flex;
+            align-items: center; user-select: none; transition: 0.2s;
+        }
+        .eye-icon:hover { color: var(--blue-glow); transform: scale(1.1); }
+
+        button {
+            width: 100%; padding: 15px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, var(--blue-primary), var(--blue-glow));
+            color: white; font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 15px rgba(47, 129, 247, 0.3);
+        }
+        button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.5); 
+            filter: brightness(1.1);
+        }
+        
+        .toggle-link { margin-top: 22px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .toggle-link:hover { color: var(--blue-glow); text-decoration: underline; }
+
+        /* --- HALAMAN PROFIL --- */
+        #user-dashboard { display: none; width: 92%; max-width: 800px; margin: 40px auto; }
+
+        .profile-header { text-align: center; margin-bottom: 25px; }
+        .profile-header h1 { font-size: 30px; margin-bottom: 8px; font-weight: 700; letter-spacing: 1.5px; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .profile-header .tag { background: rgba(47, 129, 247, 0.15); padding: 6px 16px; border-radius: 20px; font-size: 12px; color: #58a6ff; border: 1px solid rgba(47, 129, 247, 0.4); font-weight: 500; }
+        
+        .welcome-text { 
+            background: rgba(47, 129, 247, 0.05); border-radius: 16px; padding: 18px 22px; 
+            font-size: 14px; line-height: 1.6; color: #c9d1d9; border-left: 4px solid var(--blue-glow); 
+            margin: 25px 0; text-align: left; box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        /* Kotak Counter/Statistik */
+        .stat-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 35px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 10px; border-radius: 14px; text-align: center;
+            transition: 0.3s;
+        }
+        .stat-box:hover { background: rgba(47,129,247,0.1); border-color: var(--blue-primary); transform: translateY(-3px); }
+        .stat-box i { font-size: 20px; color: var(--blue-glow); margin-bottom: 5px; }
+        .stat-box .num { font-size: 18px; font-weight: 700; color: white; display: block; }
+        .stat-box .lbl { font-size: 11px; color: var(--text-muted); }
+
+        /* Skill Bar */
+        .skill-container { margin-bottom: 40px; text-align: left; }
+        .skill-item { margin-bottom: 20px; }
+        .skill-info { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; font-weight: 500; }
+        .skill-info i { color: var(--blue-glow); margin-right: 6px; }
+        .progress-bg { background: rgba(255, 255, 255, 0.06); border-radius: 10px; height: 12px; width: 100%; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-bar { 
+            background: linear-gradient(90deg, var(--blue-primary), var(--blue-glow)); 
+            height: 100%; border-radius: 10px; width: 0%; 
+            transition: width 1.8s cubic-bezier(0.1, 1, 0.1, 1); 
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        /* PROJECT GRID */
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 15px; }
+        .project-card {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border);
+            border-radius: 18px; overflow: hidden; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            display: flex; flex-direction: column; position: relative;
+        }
+        .project-card:hover { 
+            border-color: var(--blue-glow); 
+            transform: translateY(-8px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(0, 240, 255, 0.2); 
+        }
+        
+        .img-wrapper { width: 100%; height: 170px; overflow: hidden; position: relative; }
+        .project-img { width: 100%; height: 100%; object-fit: cover; background: #161b22; transition: transform 0.5s ease; }
+        .project-card:hover .project-img { transform: scale(1.1); }
+
+        .project-info { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; text-align: left; }
+        .project-title { font-size: 19px; font-weight: 600; margin-bottom: 10px; color: white; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .project-title:hover { color: var(--blue-glow); }
+        .project-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+        
+        .btn-visit { 
+            display: inline-block; text-align: center; 
+            background: rgba(47, 129, 247, 0.1); color: #58a6ff; 
+            border: 1px solid rgba(47, 129, 247, 0.4); padding: 10px 14px; 
+            border-radius: 10px; text-decoration: none; font-size: 13px; 
+            font-weight: 500; transition: all 0.3s; 
+        }
+        .btn-visit:hover { background: var(--blue-glow); color: #000; font-weight: 600; box-shadow: 0 0 15px var(--blue-glow); border-color: var(--blue-glow); }
+
+        /* Hubungi Area Moderen */
+        .contact-section {
+            margin-top: 55px; border-top: 1px solid var(--glass-border); padding-top: 30px;
+        }
+        .contact-buttons-wrapper {
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 15px;
+        }
+        .contact-btn-wa {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: linear-gradient(135deg, #1ebd54, #25D366); color: white;
+            padding: 12px 24px; border-radius: 12px; text-decoration: none;
+            font-weight: 600; font-size: 14px; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+        .contact-btn-wa:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5); }
+
+        .contact-btn-mail {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: linear-gradient(135deg, #ea4335, #ff6b6b); color: white;
+            padding: 12px 24px; border-radius: 12px; text-decoration: none;
+            font-weight: 600; font-size: 14px; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(234, 67, 53, 0.3);
+        }
+        .contact-btn-mail:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(234, 67, 53, 0.5); }
+
+        /* Footer Teks By Panjul Developer */
+        .footer-text {
+            margin-top: 40px; font-size: 11px; color: var(--text-muted); 
+            letter-spacing: 2px; font-weight: 600; text-transform: uppercase;
+        }
+
+        .header-dash { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 25px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div class="glass-card" id="login-section">
+        <h1>Panjul <span class="text-blue">Store</span></h1>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: -10px; margin-bottom: 25px;">Silakan masuk ke akunmu</p>
+        <div class="input-group">
+            <label><i class="fa-solid fa-user" style="margin-right: 5px;"></i> Username</label>
+            <input type="text" id="login-user" placeholder="Masukkan username">
+        </div>
+        <div class="input-group">
+            <label><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="login-pass" placeholder="Masukkan password">
+                <div class="eye-icon" id="eye-login" onclick="togglePassword('login-pass', 'eye-login')"><i class="fa-solid fa-eye"></i></div>
+            </div>
+        </div>
+        <button onclick="prosesLogin()"><i class="fa-solid fa-right-to-bracket" style="margin-right: 8px;"></i> Masuk Akun</button>
+        <div class="toggle-link" id="toggle-to-reg" onclick="toggleAuth()">Belum punya akun? Register di sini</div>
+    </div>
+
+    <div class="glass-card" id="register-section" style="display: none;">
+        <h1>Buat <span class="text-blue">Akun</span></h1>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: -10px; margin-bottom: 25px;">Daftar akun player baru</p>
+        <div class="input-group">
+            <label><i class="fa-solid fa-user-plus" style="margin-right: 5px;"></i> Username Baru</label>
+            <input type="text" id="reg-user" placeholder="Buat username">
+        </div>
+        <div class="input-group">
+            <label><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="reg-pass" placeholder="Buat password">
+                <div class="eye-icon" id="eye-reg1" onclick="togglePassword('reg-pass', 'eye-reg1')"><i class="fa-solid fa-eye"></i></div>
+            </div>
+        </div>
+        <div class="input-group">
+            <label><i class="fa-solid fa-shield-halved" style="margin-right: 5px;"></i> Verifikasi Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="reg-pass2" placeholder="Ulangi password">
+                <div class="eye-icon" id="eye-reg2" onclick="togglePassword('reg-pass2', 'eye-reg2')"><i class="fa-solid fa-eye"></i></div>
+            </div>
+        </div>
+        <button onclick="prosesRegister()"><i class="fa-solid fa-user-check" style="margin-right: 8px;"></i> Selesai & Daftar</button>
+        <div class="toggle-link" onclick="toggleAuth()">Sudah punya akun? Login di sini</div>
+    </div>
+
+    <div class="glass-card" id="user-dashboard" style="max-width: 750px;">
+        <div class="header-dash">
+            <span style="font-weight: 600; color: var(--blue-glow); letter-spacing: 2px; font-size: 13px;"><i class="fa-solid fa-terminal" style="margin-right: 6px;"></i> PORTFOLIO PAGE</span>
+        </div>
+
+        <div class="profile-header">
+            <h1>MUHAMAD MUKHTI ALWASI</h1>
+            <span class="tag"><i class="fa-solid fa-graduation-cap" style="margin-right: 6px;"></i> SMP Al Chalidyah — Kelas 9</span>
+        </div>
+
+        <div class="welcome-text">
+            👋 <b>Halo, Selamat Datang!</b><br>
+            Saya adalah seorang pengembang digital muda yang bersemangat dalam dunia coding. Saat ini aktif mendalami arsitektur server serta perancangan antarmuka website yang moderen, bersih, dan responsif. Berbekal dedikasi tinggi, saya terus belajar untuk menciptakan inovasi baru di dunia pemrograman!
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-box">
+                <i class="fa-solid fa-code"></i>
+                <span class="num">2+</span>
+                <span class="lbl">Project Utama</span>
+            </div>
+            <div class="stat-box">
+                <i class="fa-solid fa-bolt"></i>
+                <span class="num">80%</span>
+                <span class="lbl">Pawn Script</span>
+            </div>
+            <div class="stat-box">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <span class="num">2026</span>
+                <span class="lbl">Active Learning</span>
+            </div>
+        </div>
+
+        <div class="skill-container">
+            <h3><i class="fa-solid fa-layer-group" style="margin-right: 8px; color: var(--blue-glow);"></i> Keahlian Coding</h3>
+            <div class="skill-item">
+                <div class="skill-info"><span><i class="fa-solid fa-gamepad"></i> Pawno Scripting (GTA Server)</span><span>80%</span></div>
+                <div class="progress-bg"><div class="progress-bar" id="bar-pawn"></div></div>
+            </div>
+            <div class="skill-item">
+                <div class="skill-info"><span><i class="fa-solid fa-code"></i> HTML & CSS Design</span><span>50%</span></div>
+                <div class="progress-bg"><div class="progress-bar" id="bar-html"></div></div>
+            </div>
+        </div>
+
+        <h3 style="text-align: left; margin-bottom: 5px;"><i class="fa-solid fa-cubes" style="margin-right: 8px; color: var(--blue-glow);"></i> Website Yang Saya Buat</h3>
+        <p style="text-align: left; color: var(--text-muted); font-size: 13px; margin-top: 0; margin-bottom: 25px;">Berikut adalah daftar portofolio project yang berhasil saya kembangkan:</p>
+        
+        <div class="project-grid" id="project-container"></div>
+
+        <div class="contact-section">
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">Mengalami masalah sistem atau ingin menanyakan sesuatu?</p>
+            
+            <div class="contact-buttons-wrapper">
+                <a href="https://wa.me/6283870948217" class="contact-btn-wa" target="_blank">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 16px;"></i> Hubungi via WA
+                </a>
+                <a href="mailto:zumaroleplay@gmail.com" class="contact-btn-mail">
+                    <i class="fa-solid fa-envelope" style="font-size: 15px;"></i> Hubungi via Gmail
+                </a>
+            </div>
+
+            <div class="footer-text">
+                Website By <span class="text-blue">Panjul Developer</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- ANIMASI CANVAS BINTANG BERGERAK ---
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let numStars = 150;
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 1.8 + 0.2,
+                speed: Math.random() * 0.4 + 0.1
+            });
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+
+        // --- DATA WEBSITE PORTOFOLIO MUKHTI ---
+        const listWebsite = [
+            {
+                judul: "Elysium Roleplay UCP",
+                deskripsi: "Sebuah platform pendaftaran terintegrasi UCP (User Control Panel) untuk server Roleplay GTA San Andreas Multiplayer.",
+                link: "https://github.com", 
+                gambar: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600"
+            },
+            {
+                judul: "Panjul Store Official",
+                deskripsi: "Website toko e-commerce premium berbasis web moderen untuk kebutuhan top up game dan produk virtual terlengkap.",
+                link: "https://vercel.com", 
+                gambar: "https://images.unsplash.com/photo-1614680376593-902f74fa0d41?q=80&w=600"
+            }
+        ];
+
+        // --- SISTEM PERSISTENSI LOGIN ---
+        window.onload = function() {
+            if (localStorage.getItem('registeredUser')) {
+                document.getElementById('toggle-to-reg').style.display = 'none';
+            }
+
+            const sesi = localStorage.getItem('loginSession');
+            if (sesi === 'user') {
+                bukaHalaman('user-dashboard');
+                muatPortofolio();
+            }
+        }
+
+          // --- TOGGLE MATA SHOW/HIDE PASSWORD ---
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const iconContainer = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconContainer.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            } else {
+                input.type = "password";
+                iconContainer.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            }
+        }
+
+        function muatPortofolio() {
+            const container = document.getElementById('project-container');
+            container.innerHTML = '';
+
+            listWebsite.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div class="img-wrapper">
+                        <img class="project-img" src="${item.gambar}" alt="${item.judul}">
+                    </div>
+                    <div class="project-info">
+                        <a href="${item.link}" target="_blank" class="project-title">${item.judul}</a>
+                        <p class="project-desc">${item.deskripsi}</p>
+                        <a href="${item.link}" target="_blank" class="btn-visit">Kunjungi Website <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left:4px; font-size:11px;"></i></a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            setTimeout(() => {
+                document.getElementById('bar-pawn').style.width = '80%';
+                document.getElementById('bar-html').style.width = '50%';
+            }, 200);
+        }
+
+        function toggleAuth() {
+            const loginBox = document.getElementById('login-section');
+            const regBox = document.getElementById('register-section');
+            if (loginBox.style.display === 'none') {
+                loginBox.style.display = 'block';
+                regBox.style.display = 'none';
+            } else {
+                if (localStorage.getItem('registeredUser')) {
+                    alert('Kamu sudah mendaftarkan akun di perangkat ini!');
+                    return;
+                }
+                loginBox.style.display = 'none';
+                regBox.style.display = 'block';
+            }
+        }
+
+        // --- PROSES REGISTER ---
+        function prosesRegister() {
+            if (localStorage.getItem('registeredUser')) {
+                alert('Pendaftaran ditutup! Akun sudah dibuat sebelumnya.');
+                return;
+            }
+
+            const user = document.getElementById('reg-user').value.trim();
+            const pass1 = document.getElementById('reg-pass').value;
+            const pass2 = document.getElementById('reg-pass2').value;
+
+            if(!user || !pass1) { alert('Username & Password wajib diisi!'); return; }
+            if(pass1 !== pass2) { alert('Konfirmasi password tidak cocok!'); return; }
+
+            localStorage.setItem('registeredUser', JSON.stringify({ username: user, password: pass1 }));
+            alert('Akun Player berhasil dibuat secara aman! Silakan login.');
+            
+            document.getElementById('toggle-to-reg').style.display = 'none';
+            toggleAuth();
+        }
+
+        // --- PROSES LOGIN ---
+        function prosesLogin() {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value;
+
+            const dataLokal = localStorage.getItem('registeredUser');
+            if (dataLokal) {
+                const akunSatuSatunya = JSON.parse(dataLokal);
+                if (user === akunSatuSatunya.username && pass === akunSatuSatunya.password) {
+                    localStorage.setItem('loginSession', 'user');
+                    bukaHalaman('user-dashboard');
+                    muatPortofolio();
+                    return;
+                }
+            }
+            alert('Gagal Masuk! Username/Password salah atau kamu belum mendaftar.');
+        }
+
+        function bukaHalaman(idHalaman) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('register-section').style.display = 'none';
+            document.getElementById(idHalaman).style.display = 'block';
+            document.body.style.alignItems = 'flex-start';
+            document.body.style.paddingTop = '40px';
+            document.body.style.paddingBottom = '40px';
+        }
+    </script>
+</body>
+</html>
